@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import dynamic from "next/dynamic";
 import { X } from "lucide-react";
 import {
   Dialog,
@@ -8,6 +9,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+
+const PdfViewer = dynamic(() => import("./pdf-viewer"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex-1 flex items-center justify-center text-sm text-muted-foreground">
+      Loading PDF…
+    </div>
+  ),
+});
 
 export interface PreviewState {
   url: string;
@@ -38,25 +48,22 @@ export function ScanPreviewDialog({
         if (!open) onClose();
       }}
     >
-      <DialogContent className="sm:max-w-3xl h-[85vh] flex flex-col p-0 gap-0 overflow-hidden">
-        <DialogHeader className="px-4 py-3 border-b border-border flex-row items-center justify-between space-y-0">
-          <DialogTitle className="text-sm">{preview?.label}</DialogTitle>
+      <DialogContent
+        className="w-full max-w-full sm:max-w-3xl h-[100dvh] sm:h-[85vh] flex flex-col p-0 gap-0 overflow-hidden rounded-none sm:rounded-xl"
+        showCloseButton={false}
+      >
+        <DialogHeader className="px-4 py-3 border-b border-border flex-row items-center justify-between space-y-0 shrink-0">
+          <DialogTitle className="text-sm truncate pr-3">{preview?.label}</DialogTitle>
           <button
             type="button"
             onClick={onClose}
-            className="text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground shrink-0"
             aria-label="Close"
           >
             <X className="h-4 w-4" />
           </button>
         </DialogHeader>
-        {preview && (
-          <iframe
-            src={preview.url}
-            title={preview.label}
-            className="flex-1 w-full border-0"
-          />
-        )}
+        {preview && <PdfViewer url={preview.url} />}
       </DialogContent>
     </Dialog>
   );

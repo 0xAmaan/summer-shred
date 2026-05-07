@@ -37,11 +37,25 @@ export function V1Header({
       <p className="v1-display-italic text-[color:var(--v1-ink-soft)] text-[16px] sm:text-[20px] leading-snug">
         {fmtDate(challenge.startDate)} → {fmtDate(challenge.endDate)}
       </p>
-      {stats.totalCount > 0 && (
-        <p className="v1-display-italic text-[color:var(--v1-ink-mute)] text-[14px] sm:text-[17px] leading-snug">
-          ${stats.totalCount * 100} prize pool
-        </p>
-      )}
+      {(() => {
+        const winner = challenge.prizes?.winnerUsd;
+        const builder = challenge.prizes?.builderUsd;
+        const pool =
+          winner !== undefined || builder !== undefined
+            ? (winner ?? 0) + (builder ?? 0)
+            : stats.totalCount > 0
+              ? stats.totalCount * 100
+              : 0;
+        if (pool === 0) return null;
+        const parts: string[] = [`$${pool} pool`];
+        if (winner !== undefined) parts.push(`$${winner} winner`);
+        if (builder !== undefined) parts.push(`$${builder} builder`);
+        return (
+          <p className="v1-display-italic text-[color:var(--v1-ink-mute)] text-[14px] sm:text-[17px] leading-snug">
+            {parts.join(" · ")}
+          </p>
+        );
+      })()}
       <div className="space-y-1.5 pt-1">
         <p
           className="v1-smallcaps text-[13px] sm:text-[15px]"

@@ -276,3 +276,31 @@ export function rankParticipants<T extends RankableRow>(
   const unranked = unscorable.map((r) => ({ ...r, rank: null }));
   return [...ranked, ...unranked];
 }
+
+// "The Builder" is a side prize awarded to whoever gained the most muscle
+// (or lost the least, if everyone lost). The metric depends on the challenge:
+// rounds that score lean mass directly use lean; rounds that score ALM use ALM.
+export type BuilderMode = "lean" | "alm";
+
+export function pickBuilderMode(scoring: ScoringConfig): BuilderMode | null {
+  const w = scoring.weights;
+  if (w.almGainPct !== 0 || w.almLossPct !== 0) return "alm";
+  if (w.leanGainPct !== 0 || w.leanLossPct !== 0) return "lean";
+  return null;
+}
+
+export function pickBuilder<
+  T extends { breakdown: ScoreBreakdown; scorable: boolean }
+>(rows: T[], mode: BuilderMode): { winner: T; changePct: number } | null {
+  let best: { winner: T; changePct: number } | null = null;
+  for (const r of rows) {
+    if (!r.scorable) continue;
+    const pct =
+      mode === "alm" ? r.breakdown.almChangePct : r.breakdown.leanChangePct;
+    if (pct === null) continue;
+    if (best === null || pct > best.changePct) {
+      best = { winner: r, changePct: pct };
+    }
+  }
+  return best;
+}

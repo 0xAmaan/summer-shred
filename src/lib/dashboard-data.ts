@@ -3,7 +3,13 @@
 import * as React from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import type { ScoringConfig, ScoreBreakdown } from "@/lib/scoring";
+import {
+  pickBuilder,
+  pickBuilderMode,
+  type BuilderMode,
+  type ScoringConfig,
+  type ScoreBreakdown,
+} from "@/lib/scoring";
 
 export interface ScanLite {
   scanDate: string;
@@ -32,6 +38,11 @@ export interface DashRow {
   breakdown: ScoreBreakdown;
 }
 
+export interface ChallengePrizes {
+  winnerUsd?: number;
+  builderUsd?: number;
+}
+
 export interface ChallengeLite {
   _id: string;
   slug: string;
@@ -41,6 +52,7 @@ export interface ChallengeLite {
   status: "upcoming" | "active" | "completed";
   rulesMarkdown?: string;
   scoring: ScoringConfig;
+  prizes?: ChallengePrizes;
   /** 1-based, computed by sorting all challenges by startDate ASC. */
   round: number;
 }
@@ -81,6 +93,15 @@ export interface WeighInLeader {
   changeLb: number;
 }
 
+export interface BuilderLeader {
+  participantName: string;
+  participantColor: string | null;
+  /** "lean" for round 1, "alm" for round 2 — driven by challenge weights. */
+  mode: BuilderMode;
+  /** Signed % change. Positive = gained, negative = lost. */
+  changePct: number;
+}
+
 export interface DashboardData {
   isLoading: boolean;
   hasNoChallenges: boolean;
@@ -91,6 +112,8 @@ export interface DashboardData {
   weighIns: WeighInRow[];
   /** Best weight-loss leader from weigh-in data. Null if no weigh-ins. */
   weighInLeader: WeighInLeader | null;
+  /** "The Builder" — most % muscle gained (lean for R1, ALM for R2). */
+  builder: BuilderLeader | null;
   stats: DashStats | null;
 }
 
@@ -283,6 +306,20 @@ export function useDashboardData(round?: number | null): DashboardData {
     return best;
   }, [weighInRows]);
 
+  const builder: BuilderLeader | null = React.useMemo(() => {
+    if (!challenge) return null;
+    const mode = pickBuilderMode(challenge.scoring as ScoringConfig);
+    if (!mode) return null;
+    const result = pickBuilder(rows, mode);
+    if (!result) return null;
+    return {
+      participantName: result.winner.participantName,
+      participantColor: result.winner.participantColor,
+      mode,
+      changePct: result.changePct,
+    };
+  }, [challenge, rows]);
+
   const stats: DashStats | null = React.useMemo(() => {
     if (!challenge || !leaderboard) return null;
 
@@ -343,12 +380,14 @@ export function useDashboardData(round?: number | null): DashboardData {
           status: challenge.status,
           rulesMarkdown: challenge.rulesMarkdown,
           scoring: challenge.scoring as ScoringConfig,
+          prizes: challenge.prizes,
           round: currentRoundNumber ?? 0,
         }
       : null,
     rows,
     weighIns: weighInRows,
     weighInLeader,
+    builder,
     stats,
   };
 }

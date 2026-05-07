@@ -41,6 +41,12 @@ export default defineSchema({
     rulesMarkdown: v.optional(v.string()),
     formulaDescription: v.optional(v.string()),
     scoring: scoringValidator,
+    prizes: v.optional(
+      v.object({
+        winnerUsd: v.optional(v.number()),
+        builderUsd: v.optional(v.number()),
+      })
+    ),
     canonicalStartDate: v.optional(v.string()),
     canonicalEndDate: v.optional(v.string()),
     sortOrder: v.optional(v.number()),

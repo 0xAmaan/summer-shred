@@ -52,6 +52,8 @@ export default function EditChallengePage({
     status: "upcoming" | "active" | "completed";
     rulesMarkdown: string;
     scoring: ScoringConfig;
+    winnerUsd: string;
+    builderUsd: string;
   } | null>(null);
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -66,6 +68,8 @@ export default function EditChallengePage({
         status: challenge.status,
         rulesMarkdown: challenge.rulesMarkdown ?? "",
         scoring: challenge.scoring as ScoringConfig,
+        winnerUsd: challenge.prizes?.winnerUsd?.toString() ?? "",
+        builderUsd: challenge.prizes?.builderUsd?.toString() ?? "",
       });
     }
   }, [challenge, draft]);
@@ -103,6 +107,8 @@ export default function EditChallengePage({
     setSaving(true);
     setError(null);
     try {
+      const winner = draft.winnerUsd.trim() === "" ? undefined : Number(draft.winnerUsd);
+      const builder = draft.builderUsd.trim() === "" ? undefined : Number(draft.builderUsd);
       await update({
         id: challenge!._id,
         name: draft.name,
@@ -111,6 +117,13 @@ export default function EditChallengePage({
         status: draft.status,
         rulesMarkdown: draft.rulesMarkdown,
         scoring: draft.scoring,
+        prizes:
+          winner === undefined && builder === undefined
+            ? undefined
+            : {
+                winnerUsd: Number.isFinite(winner) ? winner : undefined,
+                builderUsd: Number.isFinite(builder) ? builder : undefined,
+              },
       });
       await recompute({ challengeId: challenge!._id });
       setSavedAt(Date.now());
@@ -208,6 +221,48 @@ export default function EditChallengePage({
               <option value="active">Active</option>
               <option value="completed">Completed</option>
             </select>
+          </div>
+        </div>
+      </section>
+
+      <section className="admin-card overflow-hidden">
+        <div className="border-b border-border px-5 py-3.5">
+          <p className="text-[15px] font-semibold tracking-tight">Prizes</p>
+        </div>
+        <div className="px-5 py-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="winnerUsd" className="text-[13px]">
+              1st place ($USD)
+            </Label>
+            <Input
+              id="winnerUsd"
+              type="number"
+              min="0"
+              step="1"
+              value={draft.winnerUsd}
+              onChange={(e) =>
+                setDraft({ ...draft, winnerUsd: e.target.value })
+              }
+              className="tabular-nums"
+              placeholder="500"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="builderUsd" className="text-[13px]">
+              The Builder ($USD)
+            </Label>
+            <Input
+              id="builderUsd"
+              type="number"
+              min="0"
+              step="1"
+              value={draft.builderUsd}
+              onChange={(e) =>
+                setDraft({ ...draft, builderUsd: e.target.value })
+              }
+              className="tabular-nums"
+              placeholder="100"
+            />
           </div>
         </div>
       </section>

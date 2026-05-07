@@ -12,7 +12,7 @@ import {
 import { V1ChallengeTabs } from "@/components/dashboard/shell";
 import { V1Header } from "@/components/dashboard/header";
 import { V1StatStrip } from "@/components/dashboard/stat-strip";
-import { V1Podium } from "@/components/dashboard/podium";
+import { V1Podium, V1BuilderCallout } from "@/components/dashboard/podium";
 import { V1Leaderboard } from "@/components/dashboard/leaderboard";
 import { V1ScanCard } from "@/components/dashboard/scan-card";
 import { V1CriteriaCard } from "@/components/dashboard/criteria-card";
@@ -65,6 +65,12 @@ export function DashboardScreen({ round }: { round: number | null }) {
             .filter((r) => r.scorable && r.rank !== null)
             .slice(0, 3)}
         />
+        {data.builder && (
+          <V1BuilderCallout
+            builder={data.builder}
+            challenge={data.challenge}
+          />
+        )}
         <div className="grid gap-10 sm:gap-12 lg:gap-16 lg:grid-cols-[3fr_2fr]">
           {showLeaderboard ? (
             <V1Leaderboard rows={data.rows} />

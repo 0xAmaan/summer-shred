@@ -1,6 +1,11 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 
+const prizesValidator = v.object({
+  winnerUsd: v.optional(v.number()),
+  builderUsd: v.optional(v.number()),
+});
+
 const scoringValidator = v.object({
   weights: v.object({
     fatLossPct: v.number(),
@@ -68,6 +73,7 @@ export const create = mutation({
     rulesMarkdown: v.optional(v.string()),
     formulaDescription: v.optional(v.string()),
     scoring: scoringValidator,
+    prizes: v.optional(prizesValidator),
   },
   handler: async (ctx, args) => {
     const existing = await ctx.db
@@ -95,6 +101,7 @@ export const update = mutation({
     rulesMarkdown: v.optional(v.string()),
     formulaDescription: v.optional(v.string()),
     scoring: v.optional(scoringValidator),
+    prizes: v.optional(prizesValidator),
   },
   handler: async (ctx, args) => {
     const { id, ...rest } = args;
