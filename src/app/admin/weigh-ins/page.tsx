@@ -19,13 +19,11 @@ export default function WeighInsPage() {
     null
   );
 
-  React.useEffect(() => {
-    if (!challengeId && challenges && challenges.length > 0) {
-      const active =
-        challenges.find((c) => c.status === "active") ?? challenges[0];
-      setChallengeId(active._id);
-    }
-  }, [challenges, challengeId]);
+  if (!challengeId && challenges && challenges.length > 0) {
+    const active =
+      challenges.find((c) => c.status === "active") ?? challenges[0];
+    setChallengeId(active._id);
+  }
 
   return (
     <div className="mx-auto w-full max-w-5xl px-6 lg:px-10 py-10 space-y-8">

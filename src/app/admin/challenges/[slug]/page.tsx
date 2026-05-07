@@ -58,21 +58,21 @@ export default function EditChallengePage({
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [savedAt, setSavedAt] = React.useState<number | null>(null);
+  const [hydratedId, setHydratedId] = React.useState<string | null>(null);
 
-  React.useEffect(() => {
-    if (challenge && draft === null) {
-      setDraft({
-        name: challenge.name,
-        startDate: challenge.startDate,
-        endDate: challenge.endDate,
-        status: challenge.status,
-        rulesMarkdown: challenge.rulesMarkdown ?? "",
-        scoring: challenge.scoring as ScoringConfig,
-        winnerUsd: challenge.prizes?.winnerUsd?.toString() ?? "",
-        builderUsd: challenge.prizes?.builderUsd?.toString() ?? "",
-      });
-    }
-  }, [challenge, draft]);
+  if (challenge && challenge._id !== hydratedId) {
+    setHydratedId(challenge._id);
+    setDraft({
+      name: challenge.name,
+      startDate: challenge.startDate,
+      endDate: challenge.endDate,
+      status: challenge.status,
+      rulesMarkdown: challenge.rulesMarkdown ?? "",
+      scoring: challenge.scoring as ScoringConfig,
+      winnerUsd: challenge.prizes?.winnerUsd?.toString() ?? "",
+      builderUsd: challenge.prizes?.builderUsd?.toString() ?? "",
+    });
+  }
 
   if (challenge === undefined) {
     return (

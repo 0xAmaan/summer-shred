@@ -73,9 +73,10 @@ export function DexaConfirmationDialog({
   const [submitting, setSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [newParticipantName, setNewParticipantName] = React.useState("");
+  const [hydratedFrom, setHydratedFrom] = React.useState<DexaParseResult | null>(null);
 
-  React.useEffect(() => {
-    if (!parsed) return;
+  if (parsed && parsed !== hydratedFrom) {
+    setHydratedFrom(parsed);
     setFields({
       totalMassLb: parsed.totalMassLb?.toString() ?? "",
       fatMassLb: parsed.fatMassLb?.toString() ?? "",
@@ -87,7 +88,6 @@ export function DexaConfirmationDialog({
     });
     setScanDate(parsed.scanDate ?? "");
 
-    // Pre-select participant
     if (preselectedParticipantId) {
       setParticipantId(preselectedParticipantId);
     } else if (parsed.participantName) {
@@ -98,7 +98,7 @@ export function DexaConfirmationDialog({
       if (match) setParticipantId(match.id);
       else setNewParticipantName(parsed.participantName);
     }
-  }, [parsed, participants, preselectedParticipantId]);
+  }
 
   function num(s: string): number | null {
     if (s.trim() === "") return null;
