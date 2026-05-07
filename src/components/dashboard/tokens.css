@@ -1,0 +1,77 @@
+/* V1 — Editorial vibe tokens. Scoped to .vibe-v1 so we don't leak globals. */
+
+.vibe-v1 {
+  --v1-cream: oklch(0.97 0.018 80);
+  --v1-cream-deep: oklch(0.94 0.022 80);
+  --v1-paper: oklch(0.99 0.012 85);
+  --v1-ink: oklch(0.18 0.015 40);
+  --v1-ink-soft: oklch(0.36 0.018 40);
+  --v1-ink-mute: oklch(0.52 0.012 50);
+  --v1-rule: oklch(0.78 0.02 60);
+  --v1-rule-soft: oklch(0.88 0.018 70);
+  --v1-terracotta: oklch(0.55 0.155 35);
+  --v1-terracotta-soft: oklch(0.66 0.115 38);
+  --v1-sage: oklch(0.50 0.085 145);
+  --v1-clay: oklch(0.48 0.135 28);
+  --v1-gold: oklch(0.66 0.13 75);
+
+  background-color: var(--v1-cream);
+  color: var(--v1-ink);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "ss01", "cv11";
+}
+
+.vibe-v1 .v1-display {
+  font-family: var(--font-fraunces), ui-serif, Georgia, serif;
+  font-optical-sizing: auto;
+  font-variation-settings: "SOFT" 30, "WONK" 0;
+  letter-spacing: -0.012em;
+}
+
+.vibe-v1 .v1-display-italic {
+  font-family: var(--font-fraunces), ui-serif, Georgia, serif;
+  font-style: italic;
+  font-variation-settings: "SOFT" 80, "WONK" 1;
+}
+
+.vibe-v1 .v1-smallcaps {
+  font-family: var(--font-fraunces), ui-serif, Georgia, serif;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.18em;
+  font-weight: 500;
+  color: var(--v1-ink-mute);
+}
+
+.vibe-v1 .v1-tnum {
+  font-feature-settings: "tnum", "lnum";
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.vibe-v1 .v1-onum {
+  font-feature-settings: "onum", "tnum";
+  font-variant-numeric: tabular-nums oldstyle-nums;
+}
+
+.vibe-v1 .v1-rule {
+  background-color: var(--v1-rule);
+  height: 1px;
+  width: 100%;
+}
+
+.vibe-v1 .v1-rule-thin {
+  background-color: var(--v1-rule-soft);
+  height: 1px;
+  width: 100%;
+}
+
+.vibe-v1 .v1-card {
+  background-color: var(--v1-paper);
+  border: 1px solid var(--v1-rule-soft);
+  border-radius: 4px;
+}
+
+.vibe-v1 a:focus-visible,
+.vibe-v1 button:focus-visible {
+  outline: 1px solid var(--v1-terracotta);
+  outline-offset: 2px;
+}
