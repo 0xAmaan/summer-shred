@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import {
   ResponsiveContainer,
   LineChart,
@@ -14,12 +15,27 @@ import {
 import { FALLBACK_COLOR } from "@/lib/constants";
 import type { WeighInRow } from "@/lib/dashboard-data";
 
+type ChallengeStatus = "upcoming" | "active" | "completed";
+
+function SubmitYoursLink() {
+  return (
+    <Link
+      href="/weekly-weigh-in"
+      className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-[12px] font-medium hover:border-foreground/20 hover:bg-muted/40 transition-colors"
+    >
+      Submit yours →
+    </Link>
+  );
+}
+
 export function V1WeighInChart({
   weighIns,
   challengeStartDate,
+  challengeStatus,
 }: {
   weighIns: WeighInRow[];
   challengeStartDate?: string;
+  challengeStatus?: ChallengeStatus;
 }) {
   const data = React.useMemo(() => {
     const startMs = challengeStartDate
@@ -62,7 +78,10 @@ export function V1WeighInChart({
   if (weighIns.length === 0) {
     return (
       <section className="space-y-3">
-        <h2 className="v1-display text-[26px] font-medium">Weekly weigh-ins</h2>
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 className="v1-display text-[26px] font-medium">Weekly weigh-ins</h2>
+          {challengeStatus === "active" && <SubmitYoursLink />}
+        </div>
         <div className="v1-rule" />
         <p className="v1-display-italic text-[15px] text-[color:var(--v1-ink-mute)] py-8">
           No weigh-ins recorded.
@@ -73,9 +92,12 @@ export function V1WeighInChart({
 
   return (
     <section className="space-y-4">
-      <div className="flex items-baseline justify-between">
+      <div className="flex items-baseline justify-between gap-3">
         <h2 className="v1-display text-[26px] font-medium">Weekly weigh-ins</h2>
-        <span className="v1-smallcaps">{participants.length} entrants</span>
+        <div className="flex items-baseline gap-3">
+          <span className="v1-smallcaps">{participants.length} entrants</span>
+          {challengeStatus === "active" && <SubmitYoursLink />}
+        </div>
       </div>
       <div className="v1-rule" />
       <div className="h-72 w-full">

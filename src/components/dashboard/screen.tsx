@@ -85,6 +85,7 @@ export function DashboardScreen({ round }: { round: number | null }) {
         <V1WeighInChart
           weighIns={data.weighIns}
           challengeStartDate={data.challenge.startDate}
+          challengeStatus={data.challenge.status}
         />
         <section className="space-y-4 sm:space-y-6">
           <div className="flex items-baseline justify-between">
