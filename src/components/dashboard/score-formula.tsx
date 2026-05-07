@@ -4,6 +4,8 @@ const TERM_LABEL: Record<keyof ScoringWeights, string> = {
   fatLossPct: "% fat lost",
   leanGainPct: "% lean gained",
   almGainPct: "% ALM gained",
+  armsGainPct: "% arms lean gained",
+  legsGainPct: "% legs lean gained",
   leanLossPct: "% lean lost",
   fatGainPct: "% fat gained",
   almLossPct: "% ALM lost",
@@ -13,14 +15,16 @@ interface MetricGroup {
   label: string;
   /** The "good outcome" term — adds to the score. */
   positiveKey: keyof ScoringWeights;
-  /** The "bad outcome" term — subtracts. */
-  negativeKey: keyof ScoringWeights;
+  /** The "bad outcome" term — subtracts. Omitted for gain-only groups. */
+  negativeKey?: keyof ScoringWeights;
 }
 
 const GROUPS: MetricGroup[] = [
   { label: "Fat", positiveKey: "fatLossPct", negativeKey: "fatGainPct" },
   { label: "Lean", positiveKey: "leanGainPct", negativeKey: "leanLossPct" },
   { label: "ALM", positiveKey: "almGainPct", negativeKey: "almLossPct" },
+  { label: "Arms", positiveKey: "armsGainPct" },
+  { label: "Legs", positiveKey: "legsGainPct" },
 ];
 
 function fmtCoef(n: number): string {
@@ -65,9 +69,11 @@ function OrConnector() {
 
 export function V1ScoreFormula({ config }: { config: ScoringConfig }) {
   const w = config.weights;
-  const activeGroups = GROUPS.filter(
-    (g) => w[g.positiveKey] !== 0 || w[g.negativeKey] !== 0
-  );
+  const activeGroups = GROUPS.filter((g) => {
+    const pw = w[g.positiveKey] ?? 0;
+    const nw = g.negativeKey ? w[g.negativeKey] ?? 0 : 0;
+    return pw !== 0 || nw !== 0;
+  });
 
   return (
     <div className="space-y-4">
@@ -76,8 +82,8 @@ export function V1ScoreFormula({ config }: { config: ScoringConfig }) {
       </p>
       <ul className="space-y-4 pl-2">
         {activeGroups.map((g) => {
-          const pw = w[g.positiveKey];
-          const nw = w[g.negativeKey];
+          const pw = w[g.positiveKey] ?? 0;
+          const nw = g.negativeKey ? w[g.negativeKey] ?? 0 : 0;
           const hasPos = pw !== 0;
           const hasNeg = nw !== 0;
           return (
@@ -94,7 +100,7 @@ export function V1ScoreFormula({ config }: { config: ScoringConfig }) {
                   />
                 )}
                 {hasPos && hasNeg && <OrConnector />}
-                {hasNeg && (
+                {hasNeg && g.negativeKey && (
                   <Term
                     sign="−"
                     coef={nw}

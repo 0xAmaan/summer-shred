@@ -23,10 +23,26 @@ const WEIGHT_LABELS: Record<keyof ScoringWeights, string> = {
   fatLossPct: "Fat lost %",
   leanGainPct: "Lean gained %",
   almGainPct: "ALM gained %",
+  armsGainPct: "Arms-lean gained %",
+  legsGainPct: "Legs-lean gained %",
   leanLossPct: "Lean lost %",
   fatGainPct: "Fat gained %",
   almLossPct: "ALM lost %",
 };
+
+// Stable display order for the weights editor — keeps the optional split-ALM
+// fields visible even on legacy challenges where the document doesn't yet
+// store armsGainPct / legsGainPct.
+const WEIGHT_ORDER: (keyof ScoringWeights)[] = [
+  "fatLossPct",
+  "leanGainPct",
+  "almGainPct",
+  "armsGainPct",
+  "legsGainPct",
+  "leanLossPct",
+  "fatGainPct",
+  "almLossPct",
+];
 
 const TIEBREAKER_OPTIONS: { value: Tiebreaker; label: string }[] = [
   { value: "highest_fat_loss_pct", label: "Highest %fat lost" },
@@ -278,9 +294,7 @@ export default function EditChallengePage({
             <ScoreFormula config={draft.scoring} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {(
-              Object.keys(draft.scoring.weights) as (keyof ScoringWeights)[]
-            ).map((k) => (
+            {WEIGHT_ORDER.map((k) => (
               <div key={k} className="space-y-1.5">
                 <Label htmlFor={k} className="text-[13px]">
                   {WEIGHT_LABELS[k]}
@@ -289,7 +303,7 @@ export default function EditChallengePage({
                   id={k}
                   type="number"
                   step="0.05"
-                  value={draft.scoring.weights[k]}
+                  value={draft.scoring.weights[k] ?? 0}
                   onChange={(e) => setWeight(k, e.target.value)}
                   className="tabular-nums"
                 />

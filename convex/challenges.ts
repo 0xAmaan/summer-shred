@@ -14,6 +14,8 @@ const scoringValidator = v.object({
     fatGainPct: v.number(),
     almGainPct: v.number(),
     almLossPct: v.number(),
+    armsGainPct: v.optional(v.number()),
+    legsGainPct: v.optional(v.number()),
   }),
   tiebreaker: v.union(
     v.literal("highest_fat_loss_pct"),
@@ -26,6 +28,8 @@ const scoringValidator = v.object({
       v.literal("fatMassLb"),
       v.literal("leanMassLb"),
       v.literal("almLb"),
+      v.literal("armsLeanLb"),
+      v.literal("legsLeanLb"),
       v.literal("bmd"),
       v.literal("bodyFatPct")
     )

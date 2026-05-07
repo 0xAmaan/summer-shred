@@ -34,6 +34,8 @@ function pickMetrics(scan: Doc<"dexaScans"> | null): ScanMetrics | null {
     fatMassLb: scan.fatMassLb,
     leanMassLb: scan.leanMassLb,
     almLb: scan.almLb,
+    armsLeanLb: scan.armsLeanLb,
+    legsLeanLb: scan.legsLeanLb,
     bmd: scan.bmd,
     bodyFatPct: scan.bodyFatPct,
   };

@@ -11,6 +11,8 @@ export type RequiredMetric =
   | "fatMassLb"
   | "leanMassLb"
   | "almLb"
+  | "armsLeanLb"
+  | "legsLeanLb"
   | "bmd"
   | "bodyFatPct";
 
@@ -21,6 +23,11 @@ export interface ScoringWeights {
   fatGainPct: number;
   almGainPct: number;
   almLossPct: number;
+  // Optional split-ALM weights for the gain side. Lets a challenge weight
+  // arm vs leg lean gain asymmetrically (e.g. arms 1.0×, legs 0.5×) without
+  // affecting the combined ALM loss term. Missing → treated as 0.
+  armsGainPct?: number;
+  legsGainPct?: number;
 }
 
 export interface ScoringConfig {
@@ -34,6 +41,8 @@ export interface ScanMetrics {
   fatMassLb?: number;
   leanMassLb?: number;
   almLb?: number;
+  armsLeanLb?: number;
+  legsLeanLb?: number;
   bmd?: number;
   bodyFatPct?: number;
 }
@@ -52,6 +61,10 @@ export interface ScoreBreakdown {
   leanChangePct: number | null;
   almChangeLb: number | null;
   almChangePct: number | null;
+  armsChangeLb: number | null;
+  armsChangePct: number | null;
+  legsChangeLb: number | null;
+  legsChangePct: number | null;
   contributions: Contribution[];
   missingMetrics: string[];
 }
@@ -96,6 +109,10 @@ export function computeScore(
     leanChangePct: null,
     almChangeLb: null,
     almChangePct: null,
+    armsChangeLb: null,
+    armsChangePct: null,
+    legsChangeLb: null,
+    legsChangePct: null,
     contributions: [],
     missingMetrics: [],
   };
@@ -120,9 +137,15 @@ export function computeScore(
   const leanChangeLb = lbChange(start.leanMassLb, end.leanMassLb);
   const almChangePct = pctChange(start.almLb, end.almLb);
   const almChangeLb = lbChange(start.almLb, end.almLb);
+  const armsChangePct = pctChange(start.armsLeanLb, end.armsLeanLb);
+  const armsChangeLb = lbChange(start.armsLeanLb, end.armsLeanLb);
+  const legsChangePct = pctChange(start.legsLeanLb, end.legsLeanLb);
+  const legsChangeLb = lbChange(start.legsLeanLb, end.legsLeanLb);
 
   const contributions: Contribution[] = [];
   const w = config.weights;
+  const armsGainCoef = w.armsGainPct ?? 0;
+  const legsGainCoef = w.legsGainPct ?? 0;
 
   // Fat: positive change is bad (fatGain), negative is good (fatLoss).
   if (fatChangePct !== null) {
@@ -184,6 +207,27 @@ export function computeScore(
     }
   }
 
+  // Arms-only lean gain (split-ALM weighting). Loss side stays bundled
+  // under almLossPct.
+  if (armsChangePct !== null && armsChangePct > 0 && armsGainCoef !== 0) {
+    contributions.push({
+      label: "%ArmsGained",
+      pct: armsChangePct,
+      coefficient: armsGainCoef,
+      signedPoints: armsChangePct * armsGainCoef,
+    });
+  }
+
+  // Legs-only lean gain.
+  if (legsChangePct !== null && legsChangePct > 0 && legsGainCoef !== 0) {
+    contributions.push({
+      label: "%LegsGained",
+      pct: legsChangePct,
+      coefficient: legsGainCoef,
+      signedPoints: legsChangePct * legsGainCoef,
+    });
+  }
+
   const rawScore = contributions.reduce((s, c) => s + c.signedPoints, 0);
   // `+ 0` normalizes -0 → +0 so the score never serializes as Convex's
   // negative-zero special-float encoding.
@@ -213,6 +257,10 @@ export function computeScore(
       leanChangePct: leanChangePct !== null ? round(leanChangePct, 2) : null,
       almChangeLb: almChangeLb !== null ? round(almChangeLb, 2) : null,
       almChangePct: almChangePct !== null ? round(almChangePct, 2) : null,
+      armsChangeLb: armsChangeLb !== null ? round(armsChangeLb, 2) : null,
+      armsChangePct: armsChangePct !== null ? round(armsChangePct, 2) : null,
+      legsChangeLb: legsChangeLb !== null ? round(legsChangeLb, 2) : null,
+      legsChangePct: legsChangePct !== null ? round(legsChangePct, 2) : null,
       contributions,
       missingMetrics: missing,
     },
@@ -226,12 +274,16 @@ const FORMULA_LABELS: Record<keyof ScoringWeights, string> = {
   fatGainPct: "%FatGained",
   almGainPct: "%ALMGained",
   almLossPct: "%ALMLost",
+  armsGainPct: "%ArmsGained",
+  legsGainPct: "%LegsGained",
 };
 
 const FORMULA_SIGN: Record<keyof ScoringWeights, "+" | "-"> = {
   fatLossPct: "+",
   leanGainPct: "+",
   almGainPct: "+",
+  armsGainPct: "+",
+  legsGainPct: "+",
   leanLossPct: "-",
   fatGainPct: "-",
   almLossPct: "-",
@@ -242,15 +294,17 @@ export function renderFormula(config: ScoringConfig): string {
     "fatLossPct",
     "leanGainPct",
     "almGainPct",
+    "armsGainPct",
+    "legsGainPct",
     "leanLossPct",
     "fatGainPct",
     "almLossPct",
   ];
   const terms = order
-    .filter((k) => config.weights[k] !== 0)
+    .filter((k) => (config.weights[k] ?? 0) !== 0)
     .map((k, i) => {
       const sign = FORMULA_SIGN[k];
-      const coef = config.weights[k];
+      const coef = config.weights[k]!;
       const label = FORMULA_LABELS[k];
       const prefix = i === 0 ? (sign === "-" ? "−" : "") : sign === "+" ? " + " : " − ";
       return `${prefix}${coef}·${label}`;
@@ -284,7 +338,14 @@ export type BuilderMode = "lean" | "alm";
 
 export function pickBuilderMode(scoring: ScoringConfig): BuilderMode | null {
   const w = scoring.weights;
-  if (w.almGainPct !== 0 || w.almLossPct !== 0) return "alm";
+  if (
+    w.almGainPct !== 0 ||
+    w.almLossPct !== 0 ||
+    (w.armsGainPct ?? 0) !== 0 ||
+    (w.legsGainPct ?? 0) !== 0
+  ) {
+    return "alm";
+  }
   if (w.leanGainPct !== 0 || w.leanLossPct !== 0) return "lean";
   return null;
 }

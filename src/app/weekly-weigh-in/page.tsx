@@ -240,7 +240,7 @@ export default function WeeklyWeighInPage() {
 
       {challenge && (
         <p className="text-[12px] text-muted-foreground">
-          <Link href={`/${challenge.slug}`} className="underline">
+          <Link href="/" className="underline">
             ← Back to {challenge.name}
           </Link>
         </p>

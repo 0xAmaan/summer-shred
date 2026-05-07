@@ -7,6 +7,8 @@ const TERM_LABELS: Record<keyof ScoringWeights, string> = {
   fatLossPct: "%FatLost",
   leanGainPct: "%LeanGained",
   almGainPct: "%ALMGained",
+  armsGainPct: "%ArmsGained",
+  legsGainPct: "%LegsGained",
   leanLossPct: "%LeanLost",
   fatGainPct: "%FatGained",
   almLossPct: "%ALMLost",
@@ -16,6 +18,8 @@ const TERM_ORDER: (keyof ScoringWeights)[] = [
   "fatLossPct",
   "leanGainPct",
   "almGainPct",
+  "armsGainPct",
+  "legsGainPct",
   "leanLossPct",
   "fatGainPct",
   "almLossPct",
@@ -25,6 +29,8 @@ const POSITIVE: Record<keyof ScoringWeights, boolean> = {
   fatLossPct: true,
   leanGainPct: true,
   almGainPct: true,
+  armsGainPct: true,
+  legsGainPct: true,
   leanLossPct: false,
   fatGainPct: false,
   almLossPct: false,
@@ -37,7 +43,7 @@ export function ScoreFormula({
   config: ScoringConfig;
   className?: string;
 }) {
-  const terms = TERM_ORDER.filter((k) => config.weights[k] !== 0);
+  const terms = TERM_ORDER.filter((k) => (config.weights[k] ?? 0) !== 0);
   if (terms.length === 0) {
     return (
       <div className={cn("text-sm text-muted-foreground", className)}>
