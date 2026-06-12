@@ -1,5 +1,6 @@
 import { Sidebar } from "@/components/nav/sidebar";
 import { BottomNav } from "@/components/nav/bottom-nav";
+import { AdminAuthProvider } from "@/components/admin/admin-auth";
 
 export default function AdminLayout({
   children,
@@ -10,7 +11,7 @@ export default function AdminLayout({
     <>
       <Sidebar />
       <main className="admin-shell flex-1 overflow-y-auto pb-20 md:pb-0">
-        {children}
+        <AdminAuthProvider>{children}</AdminAuthProvider>
       </main>
       <BottomNav />
     </>

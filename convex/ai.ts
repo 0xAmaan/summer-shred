@@ -5,6 +5,7 @@ import { v } from "convex/values";
 import { api } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
 import Anthropic from "@anthropic-ai/sdk";
+import { requireAdmin } from "./lib/auth";
 
 function anthropicClient(): Anthropic {
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -173,9 +174,11 @@ async function runParse(
 
 export const parseDexaPdf = action({
   args: {
+    adminKey: v.optional(v.string()),
     storageId: v.id("_storage"),
   },
   handler: async (ctx, args): Promise<ParseDexaResult> => {
+    requireAdmin(args.adminKey);
     return await runParse(ctx, args.storageId);
   },
 });
@@ -192,10 +195,12 @@ interface ApplySummary {
 
 export const parseAndApplyForParticipant = action({
   args: {
+    adminKey: v.optional(v.string()),
     participantId: v.id("participants"),
     storageId: v.id("_storage"),
   },
   handler: async (ctx, args): Promise<ApplySummary> => {
+    requireAdmin(args.adminKey);
     const result = await runParse(ctx, args.storageId);
 
     let created = 0;
@@ -205,6 +210,7 @@ export const parseAndApplyForParticipant = action({
     for (const scan of result.scans) {
       try {
         const r = await ctx.runMutation(api.dexaScans.upsertFromAi, {
+          adminKey: args.adminKey,
           participantId: args.participantId,
           aiScan: scan,
           aiConfidence: result.confidence,

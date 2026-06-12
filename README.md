@@ -37,15 +37,19 @@ NEXT_PUBLIC_CONVEX_URL=...               # printed by `npx convex dev`
 NEXT_PUBLIC_CONVEX_SITE_URL=...          # printed by `npx convex dev`
 SITE_PASSWORD=<your-public-site-password>   # gates the public dashboard
 ADMIN_PASSWORD=<your-admin-password>           # gates /admin
+ADMIN_API_TOKEN=<random-secret>              # authorizes privileged Convex calls
 ```
 
-The Anthropic key lives on the Convex deployment, not in `.env.local`:
+The Anthropic key and the admin API token live on the Convex deployment too:
 
 ```bash
 npx convex env set ANTHROPIC_API_KEY sk-ant-...
+npx convex env set ADMIN_API_TOKEN <same-random-secret>
 ```
 
 Both `SITE_PASSWORD` and `ADMIN_PASSWORD` are optional. If `SITE_PASSWORD` is unset the public dashboard is open; if `ADMIN_PASSWORD` is unset, `/admin` is unreachable.
+
+`ADMIN_API_TOKEN` is required for any write that isn't a self-service weigh-in. Page passwords only gate the Next.js routes — the Convex deployment URL ships in the client bundle, so every Convex function is directly callable. Privileged mutations and the AI parsing actions re-check this token server-side (`convex/lib/auth.ts`); the admin UI fetches it from `/api/admin/token` (admin cookie required) and attaches it to every call. Set the same value in both `.env.local`/Vercel and on the Convex deployment.
 
 ## How it works
 

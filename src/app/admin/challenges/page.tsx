@@ -5,6 +5,7 @@ import { useQuery } from "convex/react";
 import { ChevronRight } from "lucide-react";
 import { api } from "../../../../convex/_generated/api";
 import { renderFormula, type ScoringConfig } from "@/lib/scoring";
+import { TransitionDialog } from "@/components/admin/transition-dialog";
 
 const STATUS_TONE: Record<string, string> = {
   upcoming: "bg-amber-100 text-amber-800",
@@ -30,7 +31,12 @@ export default function ChallengesPage() {
           <p className="text-[15px] font-semibold tracking-tight">
             All challenges
           </p>
-          <p className="admin-eyebrow">{challenges?.length ?? 0} total</p>
+          <div className="flex items-center gap-3">
+            <p className="admin-eyebrow">{challenges?.length ?? 0} total</p>
+            {challenges && challenges.length > 0 && (
+              <TransitionDialog from={challenges[0]} />
+            )}
+          </div>
         </div>
         {challenges === undefined ? (
           <p className="px-5 py-6 text-[14px] text-muted-foreground">

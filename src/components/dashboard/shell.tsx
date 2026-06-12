@@ -49,6 +49,13 @@ export function V1ChallengeTabs({
           </Link>
         );
       })}
+      <Link
+        href="/progress"
+        className="v1-display text-[17px] tracking-tight text-[color:var(--v1-ink-mute)] transition-colors hover:text-[color:var(--v1-terracotta)]"
+      >
+        Progress{" "}
+        <span className="v1-display-italic">(all rounds)</span>
+      </Link>
     </nav>
   );
 }

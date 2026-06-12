@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
+import { useAdminMutation } from "@/components/admin/admin-auth";
 import { Save, AlertCircle, UserMinus, UserPlus } from "lucide-react";
 import { api } from "../../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
@@ -62,8 +63,8 @@ function ChallengeBlock({ challenge }: { challenge: Challenge }) {
     challengeId: challenge._id,
   });
   const allParticipants = useQuery(api.participants.list);
-  const upsert = useMutation(api.challengeParticipants.upsert);
-  const removeCp = useMutation(api.challengeParticipants.remove);
+  const upsert = useAdminMutation(api.challengeParticipants.upsert);
+  const removeCp = useAdminMutation(api.challengeParticipants.remove);
   const [savingId, setSavingId] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [addPick, setAddPick] = React.useState<string>("");

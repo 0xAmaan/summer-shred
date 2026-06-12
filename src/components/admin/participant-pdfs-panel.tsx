@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { useAction, useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
+import { useAdminMutation, useAdminAction } from "@/components/admin/admin-auth";
 import { Eye, Trash2, Upload, FileX, Sparkles } from "lucide-react";
 import { api } from "../../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
@@ -14,10 +15,10 @@ export function ParticipantPdfsPanel({
   onPreview: (url: string, label: string) => void;
 }) {
   const participants = useQuery(api.participants.listWithReports);
-  const generateUploadUrl = useMutation(api.participants.generateReportUploadUrl);
-  const attachReport = useMutation(api.participants.attachReport);
-  const removeReport = useMutation(api.participants.removeReport);
-  const parseAndApply = useAction(api.ai.parseAndApplyForParticipant);
+  const generateUploadUrl = useAdminMutation(api.participants.generateReportUploadUrl);
+  const attachReport = useAdminMutation(api.participants.attachReport);
+  const removeReport = useAdminMutation(api.participants.removeReport);
+  const parseAndApply = useAdminAction(api.ai.parseAndApplyForParticipant);
 
   const [busyId, setBusyId] = React.useState<Id<"participants"> | null>(null);
   const [error, setError] = React.useState<string | null>(null);

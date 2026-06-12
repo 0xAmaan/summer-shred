@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
+import { useAdminMutation } from "@/components/admin/admin-auth";
 import { Upload } from "lucide-react";
 import { api } from "../../../../convex/_generated/api";
 import { Input } from "@/components/ui/input";
@@ -12,8 +13,8 @@ import { Id } from "../../../../convex/_generated/dataModel";
 
 export default function WeighInsPage() {
   const challenges = useQuery(api.challenges.list);
-  const upsert = useMutation(api.weeklyWeighIns.upsert);
-  const remove = useMutation(api.weeklyWeighIns.remove);
+  const upsert = useAdminMutation(api.weeklyWeighIns.upsert);
+  const remove = useAdminMutation(api.weeklyWeighIns.remove);
 
   const [challengeId, setChallengeId] = React.useState<Id<"challenges"> | null>(
     null

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useMutation } from "convex/react";
+import { useAdminMutation } from "@/components/admin/admin-auth";
 import { X, Trash2, Save, CheckCircle2, Circle } from "lucide-react";
 import { api } from "../../../convex/_generated/api";
 import {
@@ -128,9 +128,9 @@ export function VetDialog({
 }
 
 function VetScanCard({ scan }: { scan: VetScan }) {
-  const updateScan = useMutation(api.dexaScans.update);
-  const removeScan = useMutation(api.dexaScans.remove);
-  const setVetted = useMutation(api.dexaScans.setVetted);
+  const updateScan = useAdminMutation(api.dexaScans.update);
+  const removeScan = useAdminMutation(api.dexaScans.remove);
+  const setVetted = useAdminMutation(api.dexaScans.setVetted);
 
   const [editMode, setEditMode] = React.useState(false);
   const [busy, setBusy] = React.useState(false);

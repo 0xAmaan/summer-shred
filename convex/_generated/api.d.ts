@@ -12,6 +12,7 @@ import type * as ai from "../ai.js";
 import type * as challengeParticipants from "../challengeParticipants.js";
 import type * as challenges from "../challenges.js";
 import type * as dexaScans from "../dexaScans.js";
+import type * as lib_auth from "../lib/auth.js";
 import type * as lib_scoring from "../lib/scoring.js";
 import type * as participants from "../participants.js";
 import type * as weeklyWeighIns from "../weeklyWeighIns.js";
@@ -27,6 +28,7 @@ declare const fullApi: ApiFromModules<{
   challengeParticipants: typeof challengeParticipants;
   challenges: typeof challenges;
   dexaScans: typeof dexaScans;
+  "lib/auth": typeof lib_auth;
   "lib/scoring": typeof lib_scoring;
   participants: typeof participants;
   weeklyWeighIns: typeof weeklyWeighIns;

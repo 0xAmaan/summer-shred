@@ -7,6 +7,7 @@ import {
   type ScoringConfig,
   type ScanMetrics,
 } from "./lib/scoring";
+import { requireAdmin } from "./lib/auth";
 
 type ScanWithUrl = (Doc<"dexaScans"> & { pdfUrl: string | null }) | null;
 
@@ -155,6 +156,7 @@ export const listForChallengeWithScans = query({
 
 export const upsert = mutation({
   args: {
+    adminKey: v.optional(v.string()),
     challengeId: v.id("challenges"),
     participantId: v.id("participants"),
     startScanId: v.optional(v.id("dexaScans")),
@@ -162,6 +164,7 @@ export const upsert = mutation({
     withdrew: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
+    requireAdmin(args.adminKey);
     const existing = await ctx.db
       .query("challengeParticipants")
       .withIndex("by_challenge_and_participant", (q) =>
@@ -193,8 +196,9 @@ export const upsert = mutation({
 });
 
 export const remove = mutation({
-  args: { id: v.id("challengeParticipants") },
+  args: { adminKey: v.optional(v.string()), id: v.id("challengeParticipants") },
   handler: async (ctx, args) => {
+    requireAdmin(args.adminKey);
     const cp = await ctx.db.get(args.id);
     if (!cp) return;
     await ctx.db.delete(args.id);
@@ -267,8 +271,9 @@ export async function recomputeScoresForScan(
 }
 
 export const recompute = mutation({
-  args: { challengeId: v.id("challenges") },
+  args: { adminKey: v.optional(v.string()), challengeId: v.id("challenges") },
   handler: async (ctx, args) => {
+    requireAdmin(args.adminKey);
     await recomputeChallengeScores(ctx, args.challengeId);
   },
 });

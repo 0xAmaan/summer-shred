@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
+import { useAdminMutation } from "@/components/admin/admin-auth";
 import {
   Trash2,
   Link2,
@@ -28,8 +29,8 @@ export default function ScansPage() {
   const scans = useQuery(api.dexaScans.list);
   const participants = useQuery(api.participants.listWithReports);
   const challenges = useQuery(api.challenges.list);
-  const removeScan = useMutation(api.dexaScans.remove);
-  const upsertCp = useMutation(api.challengeParticipants.upsert);
+  const removeScan = useAdminMutation(api.dexaScans.remove);
+  const upsertCp = useAdminMutation(api.challengeParticipants.upsert);
   const { preview, open: openPreview, close: closePreview } = useScanPreview();
 
   const [error, setError] = React.useState<string | null>(null);

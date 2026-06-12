@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
+import { useAdminMutation } from "@/components/admin/admin-auth";
 import { Trash2, Plus } from "lucide-react";
 import { api } from "../../../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
@@ -13,9 +14,9 @@ import { Id } from "../../../../convex/_generated/dataModel";
 
 export default function ParticipantsPage() {
   const participants = useQuery(api.participants.list);
-  const create = useMutation(api.participants.create);
-  const update = useMutation(api.participants.update);
-  const remove = useMutation(api.participants.remove);
+  const create = useAdminMutation(api.participants.create);
+  const update = useAdminMutation(api.participants.update);
+  const remove = useAdminMutation(api.participants.remove);
 
   const [name, setName] = React.useState("");
   const [color, setColor] = React.useState("");

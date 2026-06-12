@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useMutation } from "convex/react";
+import { useAdminMutation } from "@/components/admin/admin-auth";
 import { Sparkles, ChevronDown, ChevronRight } from "lucide-react";
 import { api } from "../../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
@@ -81,7 +81,7 @@ export function AiComparePanel({
   const [open, setOpen] = React.useState(defaultOpen);
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-  const applyAi = useMutation(api.dexaScans.applyAiToScan);
+  const applyAi = useAdminMutation(api.dexaScans.applyAiToScan);
 
   const raw = scan.aiRawResponse as AiRaw | undefined;
   const aiScans = raw?.scans ?? [];

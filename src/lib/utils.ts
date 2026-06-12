@@ -36,6 +36,12 @@ export function friendlyError(err: unknown, fallback = "Something went wrong"): 
   if (/Photo upload failed/i.test(raw)) {
     return "Photo upload failed. Try a smaller image.";
   }
+  if (/Not authorized/i.test(raw)) {
+    return "Not authorized — log in as admin and try again.";
+  }
+  if (/ADMIN_API_TOKEN is not configured/i.test(raw)) {
+    return "Admin API token isn’t configured on the Convex deployment yet.";
+  }
 
   // Generic Convex error cleanup
   const match = raw.match(/Uncaught (?:Error|[A-Za-z]+Error):\s*([^\n]+?)(?:\s+at\s|$)/);

@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
+import { requireAdmin } from "./lib/auth";
 
 export const list = query({
   args: {},
@@ -47,11 +48,13 @@ export const getByName = query({
 
 export const create = mutation({
   args: {
+    adminKey: v.optional(v.string()),
     name: v.string(),
     displayName: v.optional(v.string()),
     color: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    requireAdmin(args.adminKey);
     const existing = await ctx.db
       .query("participants")
       .withIndex("by_name", (q) => q.eq("name", args.name))
@@ -67,13 +70,15 @@ export const create = mutation({
 
 export const update = mutation({
   args: {
+    adminKey: v.optional(v.string()),
     id: v.id("participants"),
     name: v.optional(v.string()),
     displayName: v.optional(v.string()),
     color: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const { id, ...rest } = args;
+    requireAdmin(args.adminKey);
+    const { id, adminKey: _adminKey, ...rest } = args;
     const updates: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(rest)) {
       if (v !== undefined) updates[k] = v;
@@ -83,8 +88,9 @@ export const update = mutation({
 });
 
 export const remove = mutation({
-  args: { id: v.id("participants") },
+  args: { adminKey: v.optional(v.string()), id: v.id("participants") },
   handler: async (ctx, args) => {
+    requireAdmin(args.adminKey);
     const p = await ctx.db.get(args.id);
     if (p?.currentReportStorageId) {
       await ctx.storage.delete(p.currentReportStorageId);
@@ -93,16 +99,22 @@ export const remove = mutation({
   },
 });
 
-export const generateReportUploadUrl = mutation(async (ctx) => {
-  return await ctx.storage.generateUploadUrl();
+export const generateReportUploadUrl = mutation({
+  args: { adminKey: v.optional(v.string()) },
+  handler: async (ctx, args) => {
+    requireAdmin(args.adminKey);
+    return await ctx.storage.generateUploadUrl();
+  },
 });
 
 export const attachReport = mutation({
   args: {
+    adminKey: v.optional(v.string()),
     id: v.id("participants"),
     storageId: v.id("_storage"),
   },
   handler: async (ctx, args) => {
+    requireAdmin(args.adminKey);
     const p = await ctx.db.get(args.id);
     if (!p) throw new Error("Participant not found");
     if (p.currentReportStorageId && p.currentReportStorageId !== args.storageId) {
@@ -116,8 +128,9 @@ export const attachReport = mutation({
 });
 
 export const removeReport = mutation({
-  args: { id: v.id("participants") },
+  args: { adminKey: v.optional(v.string()), id: v.id("participants") },
   handler: async (ctx, args) => {
+    requireAdmin(args.adminKey);
     const p = await ctx.db.get(args.id);
     if (!p) return;
     if (p.currentReportStorageId) {

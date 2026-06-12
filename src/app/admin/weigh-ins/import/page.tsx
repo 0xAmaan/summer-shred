@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
+import { useAdminMutation } from "@/components/admin/admin-auth";
 import { Upload, Trash2, Sparkles, Info } from "lucide-react";
 import { api } from "../../../../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
@@ -39,7 +40,7 @@ interface RowState {
 export default function WeighInsImportPage() {
   const participants = useQuery(api.participants.list);
   const challenges = useQuery(api.challenges.list);
-  const bulkImport = useMutation(api.weeklyWeighIns.bulkImport);
+  const bulkImport = useAdminMutation(api.weeklyWeighIns.bulkImport);
 
   const [parsed, setParsed] = React.useState<ExtractedFile | null>(null);
   const [rows, setRows] = React.useState<RowState[]>([]);

@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { useAction, useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
+import { useAdminMutation, useAdminAction } from "@/components/admin/admin-auth";
 import { FileUp, X, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { api } from "../../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
@@ -31,10 +32,10 @@ function slugFromFilename(name: string): string {
 
 export function BulkAttachPanel() {
   const participants = useQuery(api.participants.list);
-  const generateUploadUrl = useMutation(api.participants.generateReportUploadUrl);
-  const attachReport = useMutation(api.participants.attachReport);
-  const createParticipant = useMutation(api.participants.create);
-  const parseAndApply = useAction(api.ai.parseAndApplyForParticipant);
+  const generateUploadUrl = useAdminMutation(api.participants.generateReportUploadUrl);
+  const attachReport = useAdminMutation(api.participants.attachReport);
+  const createParticipant = useAdminMutation(api.participants.create);
+  const parseAndApply = useAdminAction(api.ai.parseAndApplyForParticipant);
 
   const [entries, setEntries] = React.useState<FileEntry[]>([]);
   const [busy, setBusy] = React.useState(false);

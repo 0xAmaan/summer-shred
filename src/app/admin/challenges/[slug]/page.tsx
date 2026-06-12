@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import { use } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
+import { useAdminMutation } from "@/components/admin/admin-auth";
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
@@ -57,8 +58,8 @@ export default function EditChallengePage({
 }) {
   const { slug } = use(params);
   const challenge = useQuery(api.challenges.getBySlug, { slug });
-  const update = useMutation(api.challenges.update);
-  const recompute = useMutation(api.challengeParticipants.recompute);
+  const update = useAdminMutation(api.challenges.update);
+  const recompute = useAdminMutation(api.challengeParticipants.recompute);
   const router = useRouter();
 
   const [draft, setDraft] = React.useState<{

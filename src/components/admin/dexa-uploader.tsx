@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { useAction, useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
+import { useAdminMutation, useAdminAction } from "@/components/admin/admin-auth";
 import { Upload } from "lucide-react";
 import { api } from "../../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
@@ -13,10 +14,10 @@ import {
 import { Id } from "../../../convex/_generated/dataModel";
 
 export function DexaUploader() {
-  const generateUploadUrl = useMutation(api.dexaScans.generateUploadUrl);
-  const parsePdf = useAction(api.ai.parseDexaPdf);
-  const createScan = useMutation(api.dexaScans.create);
-  const attachReport = useMutation(api.participants.attachReport);
+  const generateUploadUrl = useAdminMutation(api.dexaScans.generateUploadUrl);
+  const parsePdf = useAdminAction(api.ai.parseDexaPdf);
+  const createScan = useAdminMutation(api.dexaScans.create);
+  const attachReport = useAdminMutation(api.participants.attachReport);
   const participants = useQuery(api.participants.list);
 
   const [busy, setBusy] = React.useState(false);

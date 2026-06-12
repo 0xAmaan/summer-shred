@@ -1,9 +1,14 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 import { recomputeScoresForScan } from "./challengeParticipants";
+import { requireAdmin } from "./lib/auth";
 
-export const generateUploadUrl = mutation(async (ctx) => {
-  return await ctx.storage.generateUploadUrl();
+export const generateUploadUrl = mutation({
+  args: { adminKey: v.optional(v.string()) },
+  handler: async (ctx, args) => {
+    requireAdmin(args.adminKey);
+    return await ctx.storage.generateUploadUrl();
+  },
 });
 
 export const list = query({
@@ -34,6 +39,7 @@ export const listByParticipant = query({
 
 export const create = mutation({
   args: {
+    adminKey: v.optional(v.string()),
     participantId: v.id("participants"),
     scanDate: v.string(),
     totalMassLb: v.optional(v.number()),
@@ -51,8 +57,10 @@ export const create = mutation({
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    requireAdmin(args.adminKey);
+    const { adminKey: _adminKey, ...doc } = args;
     const id = await ctx.db.insert("dexaScans", {
-      ...args,
+      ...doc,
       confirmed: true,
     });
     await recomputeScoresForScan(ctx, id);
@@ -62,6 +70,7 @@ export const create = mutation({
 
 export const update = mutation({
   args: {
+    adminKey: v.optional(v.string()),
     id: v.id("dexaScans"),
     scanDate: v.optional(v.string()),
     totalMassLb: v.optional(v.number()),
@@ -75,7 +84,8 @@ export const update = mutation({
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const { id, ...rest } = args;
+    requireAdmin(args.adminKey);
+    const { id, adminKey: _adminKey, ...rest } = args;
     const updates: Record<string, unknown> = {};
     for (const [k, val] of Object.entries(rest)) {
       if (val !== undefined) updates[k] = val;
@@ -98,10 +108,12 @@ export const update = mutation({
 
 export const setVetted = mutation({
   args: {
+    adminKey: v.optional(v.string()),
     id: v.id("dexaScans"),
     vetted: v.boolean(),
   },
   handler: async (ctx, args) => {
+    requireAdmin(args.adminKey);
     await ctx.db.patch(args.id, {
       vettedAt: args.vetted ? Date.now() : undefined,
     });
@@ -109,8 +121,9 @@ export const setVetted = mutation({
 });
 
 export const remove = mutation({
-  args: { id: v.id("dexaScans") },
+  args: { adminKey: v.optional(v.string()), id: v.id("dexaScans") },
   handler: async (ctx, args) => {
+    requireAdmin(args.adminKey);
     const scan = await ctx.db.get(args.id);
     if (!scan) return;
     const cps = await ctx.db.query("challengeParticipants").collect();
@@ -152,12 +165,14 @@ const confidenceShape = v.union(
  */
 export const upsertFromAi = mutation({
   args: {
+    adminKey: v.optional(v.string()),
     participantId: v.id("participants"),
     aiScan: aiScanShape,
     aiConfidence: confidenceShape,
     aiRaw: v.any(),
   },
   handler: async (ctx, args) => {
+    requireAdmin(args.adminKey);
     const { participantId, aiScan, aiConfidence, aiRaw } = args;
     const existing = await ctx.db
       .query("dexaScans")
@@ -218,10 +233,12 @@ const metricKeyShape = v.union(
  */
 export const applyAiToScan = mutation({
   args: {
+    adminKey: v.optional(v.string()),
     id: v.id("dexaScans"),
     fields: v.optional(v.array(metricKeyShape)),
   },
   handler: async (ctx, args) => {
+    requireAdmin(args.adminKey);
     const scan = await ctx.db.get(args.id);
     if (!scan) throw new Error("Scan not found");
     const raw = scan.aiRawResponse as
